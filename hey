@@ -1,0 +1,78 @@
+#!/usr/bin/python3
+""" hey <instruction> —> shell command(s). Enter/y to run."""
+import json
+import os
+import platform
+import subprocess
+import sys
+import urllib.request
+
+# --- configuration (edit to taste) ------------------------------------------
+API_ENDPOINT = "http://localhost:9931/v1/chat/completions"  # OpenAI-compatible API
+MODEL = "qwen3.5-2b"                   # model name sent in requests
+API_KEY = "local"                      # Bearer token; local servers ignore it
+SHELL = "/bin/zsh"                     # shell used to run commands
+
+SYSTEM_PROMPT = """You translate requests into JSON with {os} shell commands.
+Format: {"commands": ["command args"]}. Only JSON replies allowed\n
+shell: {shell}, cwd: {cwd}\n"""
+BSD_HINT = ("\nmacOS/Darwin is not GNU: du -d (not --max-depth), "
+            "no find -printf, no date -d, no grep -P.")
+# ------------------------------------------------------------------------------
+
+def ask(instruction):
+    os_name = platform.system()
+    p = (SYSTEM_PROMPT.replace("{os}", os_name)
+                       .replace("{shell}", SHELL).replace("{cwd}", os.getcwd()))
+    if os_name != "Linux":
+        p += BSD_HINT
+    body = json.dumps({"model": MODEL, "max_tokens": 512, "temperature" : 0.4, 
+                       "reasoning.effort" : "none",
+                       "messages": [{"role": "system", "content": p},
+                       {"role": "user", "content": instruction}]}).encode()
+    req = urllib.request.Request(API_ENDPOINT, data=body,
+                                 headers={"Content-Type": "application/json",
+                                          "Authorization": f"Bearer {API_KEY}"})
+    return json.loads(urllib.request.urlopen(req, timeout=300).read())
+
+def extract_json(text):
+    s, e = text.find("{"), text.rfind("}")
+    if s == -1 or e <= s:
+        raise ValueError("no JSON object in model response")
+    return json.loads(text[s:e + 1], strict=False)
+
+def confirm():
+    try:
+        return input("[Y/n] ").strip().lower() in ("", "y", "yes")
+    except EOFError:
+        return False
+
+def execute(resp):
+    cmds = resp.get("commands")
+    if not cmds:
+        sys.exit("hey: unexpected response")
+    for item in cmds:
+        cmd = (item if isinstance(item, str) else str(item.get("command", ""))).strip()
+        if not cmd:
+            continue
+        print(f"\nRun \033[1;33m{cmd}\033[0m ? ", end="")
+        if not confirm():
+            print("skipped")
+            return
+        p = subprocess.run([SHELL, "-c", cmd])
+        if p.returncode:
+            print(f"(exit {p.returncode})")
+            return
+
+def main():
+    if len(sys.argv) < 2:
+        sys.exit("usage: hey <instruction>")
+    print("thinking...", file=sys.stderr)
+    try:
+        resp = extract_json(ask(" ".join(sys.argv[1:]))["choices"][0]["message"]["content"])
+    except Exception as e:
+        sys.exit(f"hey: {e}")
+    execute(resp)
+
+if __name__ == "__main__":
+    main()
