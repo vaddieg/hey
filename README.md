@@ -39,3 +39,5 @@ to be slop
 - Megabytes of dependencies
 - You need to CONFIGURE them and LEARN how to use
 
+With `hey` you can easily modify the SYSTEM_PROMPT, by injecting more context
+information e.g. `git status`. There's no session history or context compaction to care about.
