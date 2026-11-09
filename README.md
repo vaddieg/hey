@@ -27,7 +27,8 @@ Tweaking the system prompt and temperature helps with small models.
 
 ```
 brew install llama.cpp
-llama serve -hf bartowski/Qwen_Qwen3.5-4B-GGUF:IQ3_XS -np 1 -c 2048 -ngl all
+llama serve -hf bartowski/Qwen_Qwen3.5-4B-GGUF:IQ3_XS -np 1 -c 2048 -ngl all \
+	--chat-template-kwargs '{"enable_thinking":false}'
 ```
 
 ## Hey why? (why hey)
