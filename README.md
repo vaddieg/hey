@@ -33,7 +33,7 @@ llama serve -hf bartowski/Qwen_Qwen3.5-4B-GGUF:IQ3_XS -np 1 -c 2048 -ngl all \
 
 ## Hey why? (why hey)
 Idea isn't new, and there are a plenty of implementations... But those I tried turned out
-to be slop
+to be slop, and running a full-blown agent with a tiny local model is overkill.
 - The prompt is bloated and takes ages to process
 - The prompt and inference parameters are fused into binary and can't be changed
 - Megabytes of dependencies
