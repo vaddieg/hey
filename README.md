@@ -17,8 +17,8 @@ Run whoami ? [Y/n]
 ```
 
 ## Usage
-Edit the Python file. It's small, and you normally only need to change the port. 
-Copy it to PATH locations, e.g. /usr/local/bin
+Edit the Python file, hey. It's small, and you normally only need to change the port. 
+Copy it to PATH locations, e.g. `/usr/local/bin` and don't forget to `chmod u+x` it
 
 ## Backend
 If you don't have a local LLM already grab llama.cpp and any small model 2-4B.
