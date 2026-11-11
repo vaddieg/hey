@@ -39,5 +39,5 @@ to be slop, and running a full-blown agent with a tiny local model is overkill.
 - Megabytes of dependencies
 - You need to CONFIGURE them and LEARN how to use
 
-With `hey` you can easily modify the SYSTEM_PROMPT, by injecting more context
-information e.g. `git status`. There's no session history or context compaction to care about.
+Hey implements minimalisitc LLM interaction workflow. The code is small, clean and easy to modify. You can easily modify the SYSTEM_PROMPT, by injecting more context
+information e.g. `git status`. There's no session history or context compaction to care about, no cache, no config files
